@@ -5,28 +5,29 @@ from tests.backend.constants import Schema_Files, Status_Code, Test_USER_Credent
 url = "http://localhost:8000/endpoints/auth/login"
 
 
-
 def test_auth_login(framework):
     """Test to check the login endpoint"""
 
     framework.log.info("Adding Test User")
-    framework.add_test_user('level_5')
+    framework.add_test_user("level_5")
     payload = {
         "email": Test_USER_Credentials.EMAIL,
-        "password": Test_USER_Credentials.PASSWORD
+        "password": Test_USER_Credentials.PASSWORD,
     }
     framework.log.step("Make a POST request to /endpoints/auth/login")
-    response = requests.post(url, json.dumps(payload))
-    actual_response = response.json()
+    response = framework.requests.post(url, payload)
+    actual_response = response.body
 
     framework.log.step("Verify 200 status code is returned")
-    assert 201 == response.status_code, framework.log.error(
-        f"Expected status code is {200} but got {response.status_code}"
+    assert Status_Code.CREATED == response.status_code, framework.log.error(
+        f"Expected status code is {Status_Code.CREATED} but got {response.status_code}"
     )
 
     framework.log.step("Verify response body")
-    
-    assert "token" in actual_response, framework.log.error(f'response is not as expected: {actual_response}')
+
+    assert "token" in actual_response, framework.log.error(
+        f"response is not as expected: {actual_response}"
+    )
 
 
 def test_auth_login_verbs(framework):
@@ -65,4 +66,61 @@ def test_auth_login_verbs(framework):
 
 
 def test_auth_login_invalid_email(framework):
-    pass
+    """Test to check the login endpoint"""
+
+    framework.log.info("Adding Test User")
+    framework.add_test_user("level_5")
+    payload = {
+        "email": "test@lens.com",
+        "password": Test_USER_Credentials.PASSWORD,
+    }
+    framework.log.step("Make a POST request to /endpoints/auth/login")
+    response = framework.requests.post(url, payload)
+
+    framework.log.step("Verify 401 status code is returned")
+    assert Status_Code.UNAUTHORIZED == response.status_code, framework.log.error(
+        f"Expected status code is {Status_Code.UNAUTHORIZED} but got {response.status_code}"
+    )
+
+
+def test_auth_login_invalid_password(framework):
+    """Test to check the login endpoint"""
+
+    framework.log.info("Adding Test User")
+    framework.add_test_user("level_5")
+    payload = {
+        "email": Test_USER_Credentials.EMAIL,
+        "password": "12345678",
+    }
+    framework.log.step("Make a POST request to /endpoints/auth/login")
+    response = framework.requests.post(url, payload)
+
+    framework.log.step("Verify 401 status code is returned")
+    assert Status_Code.UNAUTHORIZED == response.status_code, framework.log.error(
+        f"Expected status code is {Status_Code.UNAUTHORIZED} but got {response.status_code}"
+    )
+
+    framework.log.step("Verify response body")
+    assert framework.utility.response_validator(
+        response.body, Schema_Files.AUTHENTICATION
+    )
+
+
+def test_auth_login_empty_payload(framework):
+    """Test to check the login endpoint"""
+
+    framework.log.info("Adding Test User")
+    framework.add_test_user("level_5")
+    payload = {}
+    framework.log.step("Make a POST request to /endpoints/auth/login")
+    response = framework.requests.post(url, payload)
+
+    framework.log.step("Verify 400 status code is returned")
+    assert Status_Code.BAD_REQUEST == response.status_code, framework.log.error(
+        f"Expected status code is {Status_Code.BAD_REQUEST} but got {response.status_code}"
+    )
+
+    framework.log.step("Verify response body")
+    assert framework.utility.response_validator(
+        response.body, Schema_Files.AUTHENTICATION
+    )

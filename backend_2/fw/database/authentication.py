@@ -6,10 +6,14 @@ class Authentication:
     
     def __init__(self, db):
         self.__db = db
-        pass
 
     def signup(self, data, response:Response):
-        """ """
+        """
+            Arguments:
+                data: a dictionary containing the columns as keys and values as data for the value
+            Response:
+                
+        """
         db_response = self.__db.insert(self.__table_name, data)
         if not db_response:
             del data["password"]

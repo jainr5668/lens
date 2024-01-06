@@ -18,15 +18,14 @@ class Utility:
     def get_enum_keys(self, cls):
         keys = []
         for key in vars(cls).keys():
-            if not((key.startswith('__')) and key.endswith('__')):
+            if not ((key.startswith("__")) and key.endswith("__")):
                 keys.append(key)
         return keys
 
     def get_enum_values(self, cls):
         values = []
-        dummy_data =vars(cls)
+        dummy_data = vars(cls)
         for key in dummy_data.keys():
-            if not((key.startswith('__')) and key.endswith('__')):
+            if not ((key.startswith("__")) and key.endswith("__")):
                 values.append(dummy_data[key])
         return values
-                
